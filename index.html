@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PAYCYCLE — AI Cash-Flow Stress Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#101827;--card:#17213a;--card2:#1d2a47;--line:#2a3857;--tx:#eef2f8;--mut:#9aa6bd;--mint:#65D6AD;--amb:#F4B860;--on:#0b1220;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f4f6fb;--card:#fff;--card2:#eef2f9;--line:#d9e0ee;--tx:#101827;--mut:#5a6680;--mint:#1f9d78;--amb:#c77d12;--on:#fff;color-scheme:light}}
+:root[data-theme="dark"]{--bg:#101827}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.65 "IBM Plex Sans Thai",system-ui,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+button,input{font:inherit;color:inherit}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1080px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-weight:700;font-size:19px;letter-spacing:.5px;background:none;border:0;cursor:pointer;display:flex;align-items:center;gap:8px}
+.logo i{width:20px;height:20px;border-radius:50%;border:4px solid var(--mint);border-right-color:var(--amb)}
+nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto;max-width:100%}
+nav button{background:none;border:0;padding:7px 12px;border-radius:999px;color:var(--mut);cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--card2);color:var(--tx)}
+nav button:hover{color:var(--tx)}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+main{max-width:1080px;margin:0 auto;padding:28px 20px 72px}
+.v{display:none}.v.on{display:block}
+h1{font-size:clamp(34px,6vw,60px);line-height:1.2;margin:0 0 16px;font-weight:700;letter-spacing:-.5px}
+h2{font-size:26px;margin:0 0 6px;line-height:1.3}
+h3{font-size:17px;margin:0 0 8px}
+p{margin:0 0 12px;color:var(--mut);max-width:62ch}
+.btn{background:var(--mint);color:var(--on);border:0;border-radius:12px;padding:11px 20px;font-weight:600;cursor:pointer}
+.btn.g{background:var(--card2);color:var(--tx);border:1px solid var(--line)}
+.btn:hover{filter:brightness(1.08)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 6px 24px rgba(0,0,0,.14)}
+.hero{display:grid;grid-template-columns:1fr 1.15fr;gap:32px;align-items:center;padding:24px 0 44px}
+@media(max-width:820px){.hero,.two,.lab{grid-template-columns:1fr!important}}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.stat small{color:var(--mut);display:block}
+.stat b{font-size:25px;display:block;line-height:1.3}
+.stat.w{border-color:var(--amb)}.stat.w b{color:var(--amb)}
+.stat.ok b{color:var(--mint)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.lab{display:grid;grid-template-columns:320px 1fr;gap:18px;align-items:start}
+svg.ch{width:100%;height:auto;display:block}
+.sl{margin-bottom:14px}.sl label{display:flex;justify-content:space-between;font-size:14px;color:var(--mut)}.sl label b{color:var(--tx)}
+input[type=range]{width:100%;accent-color:var(--mint)}
+input[type=number],input[type=text]{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:7px 10px;width:100%}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl td,.tbl th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;font-weight:400}
+.tbl th{color:var(--mut);font-size:13px}
+.tbl input{width:96px}.tbl input.d{width:60px}
+.tag{font-size:12px;padding:2px 9px;border-radius:99px;background:var(--card2);color:var(--mut)}
+.in{color:var(--mint)}.out{color:var(--tx)}
+.warn{color:var(--amb)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:14px 0 40px}
+.steps .card b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--mint);color:var(--on);margin-bottom:8px}
+.cmp{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 14px;font-size:15px;margin-top:10px}
+.cmp span:nth-child(3n+1){color:var(--mut)}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:440px;overflow-y:auto;padding:4px}
+.m{padding:10px 14px;border-radius:14px;max-width:88%;white-space:pre-line}
+.m.u{background:var(--mint);color:var(--on);align-self:flex-end}
+.m.a{background:var(--card2)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.chips button{background:none;border:1px solid var(--line);border-radius:99px;padding:6px 13px;cursor:pointer}
+.chips button:hover{border-color:var(--mint)}
+.bar2{height:8px;background:var(--card2);border-radius:9px;overflow:hidden;margin:6px 0}
+.bar2 i{display:block;height:100%;background:var(--mint)}
+.note{font-size:13px;color:var(--mut)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--mint);color:var(--on);padding:10px 20px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.s{opacity:1}
+.pl{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pl.sel{border-left:3px solid var(--mint);padding-left:10px}
+path.l{transition:d .35s ease}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+<button class="logo" onclick="go('home')" aria-label="PAYCYCLE หน้าแรก"><i></i>PAYCYCLE</button>
+<nav id="nav"></nav>
+</div></header>
+<main>
+
+<section class="v" id="home">
+<div class="hero">
+<div>
+<h1>รู้ก่อนว่าเงินจะพอหรือไม่</h1>
+<p>Cash-Flow Stress Test ที่ลองสมมติเหตุการณ์ เช่น เงินเดือนเข้าช้าหรือมีรายจ่ายฉุกเฉิน แล้วดูว่ายอดเงินรายวันจะต่ำลงตรงไหน ก่อนที่เรื่องนั้นจะเกิดขึ้นจริง</p>
+<div class="row"><button class="btn" onclick="go('dash')">ทดลองใช้งาน</button><button class="btn g" onclick="go('lab')">ไปที่ Scenario Lab</button></div>
+</div>
+<div class="card">
+<h3>ลองเลย: ถ้าเงินเดือนเข้าช้า</h3>
+<div class="sl"><label>เลื่อนวันรับเงินเดือน <b id="hv">5 วัน</b></label><input type="range" id="hs" min="0" max="10" value="5"></div>
+<div id="hc"></div><p id="ht" style="margin:8px 0 0"></p>
+</div>
+</div>
+<h2>ทำงาน 3 ขั้นตอน</h2>
+<div class="steps">
+<div class="card"><b>1</b><h3>กรอกหรือใช้ข้อมูลตัวอย่าง</h3><p>ยอดเงินปัจจุบัน รายรับ รายจ่าย และวันที่ครบกำหนด</p></div>
+<div class="card"><b>2</b><h3>ดูช่วงที่เงินอาจไม่พอ</h3><p>ระบบคำนวณยอดคงเหลือรายวัน และบอกรายการที่ทำให้เสี่ยง</p></div>
+<div class="card"><b>3</b><h3>ลองแผน แล้วเลือกที่เหมาะ</h3><p>เปรียบเทียบหลายสถานการณ์ ให้ AI อธิบายข้อแลกเปลี่ยน แล้วบันทึกแผน</p></div>
+</div>
+<div class="two">
+<div class="card"><h3>ระบบช่วยได้</h3><p>เห็นภาพรวมกระแสเงินสดรายวัน ทดลองสถานการณ์ได้หลายแบบ และเปรียบเทียบตัวเลขก่อนตัดสินใจ</p></div>
+<div class="card"><h3>ข้อจำกัด</h3><p>ผลลัพธ์คำนวณจากตัวเลขที่ผู้ใช้กรอกเท่านั้น ไม่ใช่การทำนายอนาคต และไม่รับประกันว่าจะไม่มีปัญหาการเงิน</p></div>
+</div>
+</section>
+
+<section class="v" id="dash">
+<h2>Cash-Flow Dashboard</h2>
+<p>แก้ตัวเลขด้านล่าง แล้วกราฟและช่วงเสี่ยงจะเปลี่ยนทันที (30 วันข้างหน้า)</p>
+<div class="two" style="grid-template-columns:1fr 1fr;max-width:520px;margin-bottom:6px">
+<div class="sl"><label>ยอดเงินปัจจุบัน (บาท)</label><input type="number" id="ib" min="0"></div>
+<div class="sl"><label>ยอดขั้นต่ำที่ไม่อยากให้ต่ำกว่า</label><input type="number" id="im" min="0"></div>
+</div>
+<div class="stats" id="ds"></div>
+<div class="card"><h3>ยอดเงินคงเหลือรายวัน</h3><div id="dc"></div></div>
+<div class="two" style="margin-top:18px">
+<div class="card"><h3>รายการที่ทำให้เสี่ยง</h3><div id="dr"></div></div>
+<div class="card"><h3>รายรับ-รายจ่าย (แก้ได้)</h3><table class="tbl"><thead><tr><th>รายการ</th><th>บาท</th><th>วันที่</th></tr></thead><tbody id="dt"></tbody></table><p class="note" style="margin-top:8px">ค่าใช้จ่ายรายวันที่ยืดหยุ่น 250 บาท/วัน คิดแยกต่างหาก</p></div>
+</div>
+<div class="row" style="margin-top:18px"><button class="btn" onclick="go('lab')">ทดลองใน Scenario Lab</button><button class="btn g" onclick="go('ai')">ถาม AI Copilot</button></div>
+</section>
+
+<section class="v" id="lab">
+<h2>Scenario Lab</h2>
+<p>ปรับตัวแปรทางซ้าย เส้นสีขาวคือสถานการณ์ใหม่ เส้นสีเขียวคือแผนพื้นฐาน</p>
+<div class="lab">
+<div class="card"><div id="sls"></div>
+<div class="row"><button class="btn g" onclick="resetP()">รีเซ็ต</button></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+<div class="sl"><label>ชื่อแผน</label><input type="text" id="pn" placeholder="เช่น ลดค่ากินและออมน้อยลง"></div>
+<button class="btn" onclick="savePlan()">บันทึกแผนนี้</button></div>
+<div><div class="card"><h3>เปรียบเทียบยอดคงเหลือ</h3><div id="lc"></div>
+<div class="cmp" id="lm"></div></div>
+<div class="row" style="margin-top:14px"><button class="btn g" onclick="go('ai')">ให้ AI อธิบายแผนนี้</button><button class="btn g" onclick="go('goals')">ดูแผนที่บันทึก</button></div></div>
+</div>
+</section>
+
+<section class="v" id="ai">
+<h2>AI Copilot</h2>
+<p>ถามเกี่ยวกับผลคำนวณ ขอเปรียบเทียบสถานการณ์ หรือขอเหตุผล คำตอบอ้างอิงตัวเลขจากระบบ</p>
+<div class="card"><div class="chat" id="chat" aria-live="polite"></div>
+<div class="chips" id="chips"></div>
+<form class="row" onsubmit="event.preventDefault();ask(document.getElementById('q').value)"><input type="text" id="q" placeholder="พิมพ์คำถาม เช่น ถ้าเงินเดือนเข้าช้า 5 วัน" style="flex:1;min-width:200px"><button class="btn" type="submit">ถาม</button></form>
+<p class="note" style="margin:10px 0 0">Copilot ในต้นแบบนี้อธิบายจากโมเดลคำนวณในหน้า ไม่ใช่การทำนายอนาคต และไม่ใช่คำแนะนำทางการเงินเฉพาะบุคคล</p></div>
+</section>
+
+<section class="v" id="goals">
+<h2>Goals &amp; Plan</h2>
+<p>เป้าหมายออม เงินสำรอง และแผนที่บันทึกไว้เปรียบเทียบกัน</p>
+<div class="two">
+<div class="card"><h3>เป้าหมายเงินออม</h3><p class="note" id="gn"></p><div id="gl"></div></div>
+<div class="card"><h3>เงินสำรองที่ต้องการ</h3><div id="gr"></div></div>
+</div>
+<div class="card" style="margin-top:18px"><h3>แผนที่บันทึกไว้</h3><div id="gp"></div></div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const D=30,FLEX=250;
+const S={bal:26000,min:5000,items:[
+{n:'ค่าเช่าบ้าน',a:9500,d:3,t:'out'},{n:'ค่างวดรถ',a:4200,d:5,t:'out',k:'loan'},{n:'บัตรเครดิต',a:3800,d:10,t:'out'},
+{n:'ค่าน้ำ ไฟ เน็ต',a:2100,d:12,t:'out'},{n:'เงินเดือน',a:28000,d:15,t:'in',k:'sal'},{n:'ค่าใช้จ่ายครอบครัว',a:3000,d:18,t:'out'},{n:'งานฟรีแลนซ์',a:6000,d:24,t:'in'}]};
+const DEF={delay:0,inc:0,em:0,loan:0,cut:0,save:3000};
+const CFG=[['delay','เลื่อนวันรับเงินเดือน',0,10,'วัน'],['inc','เพิ่ม/ลดรายรับ',-30,20,'%'],['em','รายจ่ายฉุกเฉิน (วันที่ 8)',0,15000,'บาท',500],['loan','เปลี่ยนวันชำระค่างวด',-5,5,'วัน'],['cut','ลดรายจ่ายที่ยืดหยุ่นได้',0,40,'%'],['save','เงินออมต่อเดือน (วันที่ 16)',0,8000,'บาท',500]];
+let P={...DEF};
+const $=id=>document.getElementById(id);
+const f=n=>Math.round(n).toLocaleString('en-US');
+function sim(p){p={...DEF,...p};let b=S.bal,a=[];
+for(let d=1;d<=D;d++){b-=FLEX*(1-p.cut/100);
+S.items.forEach(it=>{const day=it.d+(it.k=='sal'?p.delay:0)+(it.k=='loan'?p.loan:0);if(day==d)b+=it.t=='in'?it.a*(1+p.inc/100):-it.a});
+if(d==8)b-=p.em;if(d==16)b-=p.save;a.push(b)}return a}
+function st(a){const m=Math.min(...a),md=a.indexOf(m)+1,r=a.map((v,i)=>v<S.min?i+1:0).filter(Boolean);
+return{m,md,r,first:r[0],last:r[r.length-1],end:a[D-1]}}
+function chart(el,series,h=230){const W=640,L=44,B=22,T=10,all=series.flatMap(s=>s.v).concat([0,S.min]);
+const lo=Math.min(...all),hi=Math.max(...all),x=i=>L+(i/(D-1))*(W-L-8),y=v=>T+(1-(v-lo)/(hi-lo||1))*(h-T-B);
+let s=`<svg class="ch" viewBox="0 0 ${W} ${h}" role="img" aria-label="กราฟยอดเงินคงเหลือรายวัน">`;
+s+=`<line x1="${L}" x2="${W-8}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/><text x="4" y="${y(0)+4}" fill="var(--mut)" font-size="11">0</text>`;
+s+=`<line x1="${L}" x2="${W-8}" y1="${y(S.min)}" y2="${y(S.min)}" stroke="var(--amb)" stroke-dasharray="5 4"/><text x="${W-8}" y="${y(S.min)-5}" text-anchor="end" fill="var(--amb)" font-size="11">ขั้นต่ำ ${f(S.min)}</text>`;
+for(let d=5;d<=D;d+=5)s+=`<text x="${x(d-1)}" y="${h-5}" text-anchor="middle" fill="var(--mut)" font-size="11">วันที่ ${d}</text>`;
+series.forEach(se=>{s+=`<path class="l" d="${se.v.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join('')}" fill="none" stroke="${se.c}" stroke-width="${se.w||2.5}" ${se.dash?'stroke-dasharray="6 4"':''} stroke-linejoin="round"/>`});
+const last=series[series.length-1];last.v.forEach((v,i)=>{if(v<S.min)s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="var(--amb)"/>`});
+$(el).innerHTML=s+'</svg>'}
+const rng=(a,b)=>a?`วันที่ ${a}–${b}`:'ไม่มี';
+function causes(a){const t=st(a);return S.items.filter(i=>i.t=='out'&&i.d<=t.md).sort((x,y)=>y.a-x.a).slice(0,3)}
+function home(){const d=+$('hs').value;$('hv').textContent=d+' วัน';const b=sim(),s=sim({delay:d}),sb=st(b),ss=st(s);
+chart('hc',[{v:b,c:'var(--mint)'},{v:s,c:'var(--tx)',dash:1}],200);
+$('ht').innerHTML=`ยอดต่ำสุดเปลี่ยนจาก <b>${f(sb.m)}</b> เป็น <b class="${ss.m<S.min?'warn':''}">${f(ss.m)}</b> บาท${ss.r.length?` และต่ำกว่าขั้นต่ำ ${ss.r.length} วัน`:''}`}
+function dash(){const a=sim(),t=st(a),inc=S.items.filter(i=>i.t=='in').reduce((s,i)=>s+i.a,0),out=S.items.filter(i=>i.t=='out').reduce((s,i)=>s+i.a,0);
+$('ds').innerHTML=`<div class="stat"><small>ยอดเงินปัจจุบัน</small><b>${f(S.bal)}</b></div><div class="stat ok"><small>รายรับที่คาดว่าจะเข้า</small><b>+${f(inc)}</b></div><div class="stat"><small>รายจ่ายที่ถึงกำหนด</small><b>−${f(out)}</b></div><div class="stat ${t.m<S.min?'w':'ok'}"><small>ยอดต่ำสุด (วันที่ ${t.md})</small><b>${f(t.m)}</b></div><div class="stat ${t.r.length?'w':'ok'}"><small>ช่วงต่ำกว่าขั้นต่ำ</small><b style="font-size:20px">${t.r.length?rng(t.first,t.last):'ไม่มี'}</b></div>`;
+chart('dc',[{v:a,c:'var(--mint)'}]);
+$('dr').innerHTML=t.r.length?`<p>ยอดเงินลดลงต่ำสุดวันที่ ${t.md} หลังรายการเหล่านี้ถึงกำหนด</p>`+causes(a).map(i=>`<div class="pl"><span>${i.n} <span class="tag">วันที่ ${i.d}</span></span><b class="warn">−${f(i.a)}</b></div>`).join(''):'<p>ไม่พบช่วงที่ยอดต่ำกว่าขั้นต่ำที่ตั้งไว้ ลองเพิ่มความเครียดใน Scenario Lab</p>'}
+function table(){$('dt').innerHTML=S.items.map((it,i)=>`<tr><td><span class="${it.t}">${it.t=='in'?'＋':'−'}</span> ${it.n}</td><td><input type="number" min="0" value="${it.a}" aria-label="จำนวนเงิน ${it.n}" oninput="S.items[${i}].a=+this.value||0;upd()"></td><td><input class="d" type="number" min="1" max="30" value="${it.d}" aria-label="วันที่ ${it.n}" oninput="S.items[${i}].d=Math.min(30,Math.max(1,+this.value||1));upd()"></td></tr>`).join('')}
+function sliders(){$('sls').innerHTML=CFG.map(c=>`<div class="sl"><label for="s_${c[0]}">${c[1]} <b id="v_${c[0]}"></b></label><input type="range" id="s_${c[0]}" min="${c[2]}" max="${c[3]}" step="${c[5]||1}" value="${P[c[0]]}"></div>`).join('');
+CFG.forEach(c=>$('s_'+c[0]).oninput=e=>{P[c[0]]=+e.target.value;lab()})}
+function lab(){CFG.forEach(c=>{const v=P[c[0]];$('v_'+c[0]).textContent=(v>0&&c[4]=='%'&&c[0]=='inc'?'+':'')+f(v)+' '+c[4]});
+const b=sim(),s=sim(P),sb=st(b),ss=st(s);chart('lc',[{v:b,c:'var(--mint)'},{v:s,c:'var(--tx)',dash:1,w:2.5}]);
+$('lm').innerHTML=`<span></span><b>แผนพื้นฐาน</b><b>สถานการณ์</b><span>ยอดต่ำสุด</span><span>${f(sb.m)}</span><span class="${ss.m<S.min?'warn':''}">${f(ss.m)}</span><span>วันที่เงินไม่พอ</span><span>${rng(sb.first,sb.last)}</span><span class="${ss.r.length?'warn':''}">${rng(ss.first,ss.last)}</span><span>ยอดวันที่ 30</span><span>${f(sb.end)}</span><span>${f(ss.end)}</span>`}
+function resetP(){P={...DEF};sliders();lab()}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1800)}
+let mem=[];function load(){try{return JSON.parse(localStorage.getItem('paycycle.plans')||'[]')}catch(e){return mem}}
+function store(a){mem=a;try{localStorage.setItem('paycycle.plans',JSON.stringify(a))}catch(e){}}
+let selId=null;
+function savePlan(){const a=load(),n=$('pn').value.trim()||'แผน '+(a.length+1);a.push({id:Date.now(),n,p:{...P}});store(a);selId=a[a.length-1].id;$('pn').value='';toast('บันทึกแผนแล้ว')}
+function goals(){const G=[['ซื้อโน้ตบุ๊ก',30000,6000,.5],['ทริปปลายปี',15000,2000,.3],['กองทุนเรียนต่อ',50000,10000,.2]];
+$('gn').textContent=`แบ่งเงินออม ${f(P.save)} บาท/เดือน ตามสัดส่วน 50/30/20 (จาก Scenario Lab)`;
+$('gl').innerHTML=G.map(g=>{const m=P.save*g[3],pc=Math.min(100,g[2]/g[1]*100);return`<div style="margin-bottom:14px"><div class="pl" style="border:0;padding:0"><span>${g[0]}</span><span class="note">${f(g[2])} / ${f(g[1])}</span></div><div class="bar2"><i style="width:${pc}%"></i></div><span class="note">${m>0?`ครบประมาณ ${Math.ceil((g[1]-g[2])/m)} เดือน`:'ยังไม่ได้จัดสรรเงินออม'}</span></div>`}).join('');
+const fixed=S.items.filter(i=>i.t=='out').reduce((s,i)=>s+i.a,0)+FLEX*30,t=st(sim(P));
+$('gr').innerHTML=`<p>รายจ่ายหนึ่งเดือนในแผนนี้ประมาณ <b style="color:var(--tx)">${f(fixed)}</b> บาท ถ้าอยากมีเงินสำรองพอใช้ 1 เดือน ควรสะสมให้ถึงระดับนี้</p><div class="stat ${S.min<fixed?'w':'ok'}"><small>ขั้นต่ำที่ตั้งไว้ตอนนี้</small><b>${f(S.min)}</b></div><p class="note" style="margin-top:10px">ยอดต่ำสุดตามสถานการณ์ปัจจุบัน ${f(t.m)} บาท</p>`;
+const a=load(),bm=st(sim()).m;
+$('gp').innerHTML=a.length?a.map(x=>{const s=st(sim(x.p));return`<div class="pl ${x.id==selId?'sel':''}"><span><b>${x.n}</b><br><span class="note">ยอดต่ำสุด ${f(s.m)} (พื้นฐาน ${f(bm)}) · ${s.r.length?'ต่ำกว่าขั้นต่ำ '+s.r.length+' วัน':'ไม่ต่ำกว่าขั้นต่ำ'}</span></span><span class="row"><button class="btn g" onclick="pick(${x.id})">${x.id==selId?'แผนที่เลือก':'เลือกแผนนี้'}</button><button class="btn g" onclick="useP(${x.id})">เปิดใน Lab</button><button class="btn g" onclick="del(${x.id})" aria-label="ลบแผน">ลบ</button></span></div>`}).join(''):'<p>ยังไม่มีแผนที่บันทึก ไปที่ Scenario Lab แล้วกด “บันทึกแผนนี้”</p>'}
+function pick(id){selId=id;goals()}
+function useP(id){const x=load().find(y=>y.id==id);if(x){P={...DEF,...x.p};sliders();lab();go('lab')}}
+function del(id){store(load().filter(x=>x.id!=id));goals()}
+const chips=['ถ้าเงินเดือนเข้าช้า 5 วัน','ถ้ามีรายจ่ายฉุกเฉิน 8,000 บาท','ลดรายจ่ายได้ 20% จะดีขึ้นไหม','อธิบายแผนใน Lab ตอนนี้','ทำไมช่วงนี้เสี่ยง'];
+function say(t,c){const e=document.createElement('div');e.className='m '+c;e.textContent=t;$('chat').appendChild(e);$('chat').scrollTop=1e5}
+function fx(label,p){const b=st(sim()),s=st(sim(p));return`${label}\n• ยอดต่ำสุด: ${f(b.m)} → ${f(s.m)} บาท\n• ช่วงต่ำกว่าขั้นต่ำ (${f(S.min)}): ${rng(b.first,b.last)} → ${rng(s.first,s.last)}\n• ยอดวันที่ 30: ${f(b.end)} → ${f(s.end)} บาท`+(s.m<0?'\n• ยอดติดลบ แปลว่าเงินสดไม่พอจ่ายในบางวัน':'')}
+function ask(q){q=q.trim();if(!q)return;$('q').value='';say(q,'u');const n=+(q.replace(/,/g,'').match(/\d+/)||[0])[0];let r;
+if(/ช้า|เลื่อน|ล่าช้า/.test(q))r=fx(`ถ้าเงินเดือนเข้าช้า ${n&&n<=10?n:5} วัน`,{delay:n&&n<=10?n:5})+'\nเหตุผล: ค่าเช่า ค่างวด และบัตรเครดิตยังครบกำหนดตามเดิม จึงต้องใช้เงินสำรองนานขึ้น';
+else if(/ฉุกเฉิน/.test(q)){const e=n>=500?n:8000;r=fx(`ถ้ามีรายจ่ายฉุกเฉิน ${f(e)} บาท (วันที่ 8)`,{em:e})+'\nเหตุผล: วันที่ 8 อยู่ก่อนเงินเดือนเข้า ทำให้เงินตึงช่วงกลางเดือนมากขึ้น'}
+else if(/ลด|ปรับ|ประหยัด/.test(q)){const c=n&&n<=40?n:20;r=fx(`ถ้าลดรายจ่ายที่ยืดหยุ่นได้ ${c}%`,{cut:c})+`\nข้อแลกเปลี่ยน: ประหยัดได้ประมาณ ${f(FLEX*30*c/100)} บาทใน 30 วัน แต่ต้องปรับค่าใช้จ่ายประจำวันจริง`}
+else if(/ออม/.test(q)){r=fx('ถ้าไม่ออมเดือนนี้',{save:0})+'\nข้อแลกเปลี่ยน: ยอดดีขึ้น แต่เป้าหมายเงินออมช้าลง'}
+else if(/แผน|ตอนนี้|lab|เปรียบเทียบ/i.test(q)){r=fx('แผนใน Scenario Lab ตอนนี้',P)}
+else{const a=sim(),t=st(a),c=causes(a);r=`ภาพรวมแผนพื้นฐาน\n• ยอดต่ำสุด ${f(t.m)} บาท ในวันที่ ${t.md}\n• ช่วงต่ำกว่าขั้นต่ำ: ${rng(t.first,t.last)}\n`+(c.length?`• รายการที่กดยอดมากที่สุดก่อนวันนั้น: ${c.map(i=>i.n+' '+f(i.a)).join(', ')}`:'')}
+setTimeout(()=>say(r,'a'),250)}
+function upd(){dash();home()}
+const PG=[['home','หน้าแรก'],['dash','Dashboard'],['lab','Scenario Lab'],['ai','AI Copilot'],['goals','Goals & Plan']];
+$('nav').innerHTML=PG.map(p=>`<button data-p="${p[0]}" onclick="go('${p[0]}')">${p[1]}</button>`).join('');
+function go(p){document.querySelectorAll('.v').forEach(e=>e.classList.toggle('on',e.id==p));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p==p));
+if(p=='dash'){table();dash()}if(p=='lab')lab();if(p=='goals')goals();if(p=='home')home();window.scrollTo(0,0)}
+$('ib').value=S.bal;$('im').value=S.min;
+$('ib').oninput=e=>{S.bal=+e.target.value||0;dash();home()};$('im').oninput=e=>{S.min=+e.target.value||0;dash();home()};
+$('hs').oninput=home;$('chips').innerHTML=chips.map(c=>`<button onclick="ask(this.textContent)">${c}</button>`).join('');
+say('สวัสดี เลือกคำถามด้านล่าง หรือพิมพ์ถามเรื่องเงินเดือนเข้าช้า รายจ่ายฉุกเฉิน หรือการลดรายจ่าย','a');
+sliders();go('home');
+</script>
+</body>
+</html>
